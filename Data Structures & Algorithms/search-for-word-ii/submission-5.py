@@ -1,0 +1,83 @@
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.word = False
+
+class Trie:
+    def __init__(self):
+        self.head = TrieNode()
+
+    def addWord(self, word):
+        curr = self.head
+
+        for c in word:
+            if c not in curr.children:
+                curr.children[c] = TrieNode()
+            
+            curr = curr.children[c]
+        
+        curr.word = True
+    
+    def searchWord(self, word):
+        curr = self.head
+
+        for c in word:
+            if c not in curr.children:
+                return False
+            
+            curr = curr.children[c]
+        
+        return curr.word
+    
+    def searchPrefix(self, prefix):
+        curr = self.head
+
+        for c in prefix:
+            if c not in curr.children:
+                return False
+            
+            curr = curr.children[c]
+        
+        return True
+
+class Solution:
+    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        dictionary = Trie()
+        for word in words:
+            dictionary.addWord(word)
+
+        ROWS, COLS = len(board), len(board[0])
+        visited = [[0] * COLS for _ in range(ROWS)]
+        res = set()
+        for r in range(ROWS):
+            for c in range(COLS):
+                self.dfsHelper(board, dictionary, visited, res, "", r, c)
+        
+        return list(res)
+
+
+    def dfsHelper(self, board, dictionary, visited, res, currWord, r, c):
+        ROWS, COLS = len(board), len(board[0])
+
+        if min(r, c) < 0 or r == ROWS or c == COLS or visited[r][c] == 1:
+            return
+        
+        currWord += board[r][c]
+        if not dictionary.searchPrefix(currWord):
+            return
+        
+        visited[r][c] = 1
+
+        self.dfsHelper(board, dictionary, visited, res, currWord, r + 1, c) 
+        self.dfsHelper(board, dictionary, visited, res, currWord, r - 1, c) 
+        self.dfsHelper(board, dictionary, visited, res, currWord, r, c + 1) 
+        self.dfsHelper(board, dictionary, visited, res, currWord, r, c - 1)
+
+        if dictionary.searchWord(currWord):
+            res.add(currWord)
+        
+        visited[r][c] = 0
+
+
+
+
